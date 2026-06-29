@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>變更訂單資料填寫（申請人用）</title>
+<style>
+:root{
+  --bg:#f5f4f0; --surface:#ffffff; --surface-alt:#fafaf7;
+  --ink:#23262b; --muted:#767b85; --line:#e6e3dc;
+  --accent:#3b6b5e; --accent-soft:#e9f1ee;
+  --calc-bg:#f3f4f1; --calc-ink:#5b6259;
+}
+*{box-sizing:border-box;}
+body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:28px 24px 60px;font-size:15px;line-height:1.5;}
+.page{max-width:980px;margin:0 auto;}
+h1{font-size:23px;margin:0 0 4px;font-weight:700;letter-spacing:.01em;}
+.sub{color:var(--muted);font-size:14px;margin-bottom:18px;}
+
+.intro{background:var(--accent-soft);border:1px solid #cfe0d9;border-radius:9px;padding:14px 18px;font-size:14.5px;color:#2d4f45;line-height:1.85;margin-bottom:18px;}
+.intro b{color:#1f3a33;}
+.intro ol{margin:6px 0 0;padding-left:20px;}
+.intro li{margin-bottom:3px;}
+
+.toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.toolbar button{background:var(--surface);border:1px solid var(--line);color:var(--ink);padding:9px 16px;border-radius:7px;font-size:14px;cursor:pointer;}
+.toolbar button:hover{border-color:var(--accent);color:var(--accent);}
+.toolbar button.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.toolbar button.primary:hover{background:#2f5a4f;color:#fff;}
+.toolbar input[type=file]{display:none;}
+
+#scenarioBanner{background:var(--accent-soft);border:1px solid #cfe0d9;border-radius:9px;padding:13px 16px;font-size:15px;color:#2d4f45;font-weight:600;margin:16px 0 20px;}
+
+.layout{display:flex;flex-direction:column;gap:18px;}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px 26px;overflow-x:auto;}
+
+fieldset{border:none;border-top:1px solid var(--line);margin:0 0 30px;padding:22px 0 4px;scroll-margin-top:64px;counter-increment:secnum;}
+fieldset:first-of-type{border-top:none;padding-top:0;}
+legend{padding:0 0 8px;font-size:15px;font-weight:700;color:var(--ink);margin-bottom:14px;width:100%;border-bottom:1px solid var(--line);}
+#formArea{counter-reset:secnum;}
+legend:before{content:"STEP " counter(secnum) "  ";color:var(--accent);font-weight:700;}
+fieldset.hidden-scenario{display:none;}
+
+details.foldable{border:1px solid var(--line);border-radius:8px;margin-bottom:22px;padding:0;scroll-margin-top:64px;}
+details.foldable summary{font-weight:700;color:var(--ink);padding:13px 18px;cursor:pointer;font-size:14.5px;list-style:none;}
+details.foldable summary::-webkit-details-marker{display:none;}
+details.foldable summary:before{content:"▸ ";color:var(--accent);}
+details.foldable[open] summary:before{content:"▾ ";color:var(--accent);}
+details.foldable .inner{padding:4px 0;}
+
+table.cell-table{width:auto;border-collapse:collapse;table-layout:auto;}
+table.cell-table td{border:1px solid var(--line);padding:0;vertical-align:middle;}
+table.cell-table td.cell-label{background:var(--surface-alt);padding:7px 10px;font-size:13.5px;color:#4d525c;font-weight:500;line-height:1.35;white-space:nowrap;}
+table.cell-table td.cell-label .label-text{display:inline-block;max-width:300px;white-space:normal;vertical-align:middle;}
+table.cell-table td.cell-input{padding:0;}
+table.cell-table td.note-cell{background:var(--surface-alt);color:var(--muted);font-size:13px;padding:8px 12px;}
+.cell-input input,.cell-input select,.cell-input textarea{box-sizing:content-box;height:100%;padding:7px 10px;border:none;font-size:14px;background:var(--surface);color:var(--ink);width:90px;min-width:50px;max-width:460px;}
+.cell-input input[type=date]{width:148px !important;min-width:148px;}
+.cell-input input:focus,.cell-input select:focus,.cell-input textarea:focus{outline:2px solid var(--accent);outline-offset:-2px;position:relative;z-index:1;}
+.cell-input input[type=number]{-moz-appearance:textfield;}
+.cell-input input[type=number]::-webkit-outer-spin-button,
+.cell-input input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.cell-input input.computed{background:var(--calc-bg);color:var(--calc-ink);font-weight:600;cursor:not-allowed;min-width:70px;}
+.input-scroll{max-width:230px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;}
+.input-scroll::-webkit-scrollbar{height:6px;}
+.input-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
+.input-scroll input,.input-scroll select{max-width:none !important;}
+.cell-input textarea{min-height:44px;resize:vertical;}
+.cell-input textarea.wraptext{min-height:34px;height:34px;resize:none;overflow:hidden;white-space:normal;word-break:break-word;line-height:1.4;width:100%;max-width:none;}
+.cell-input select{width:auto;max-width:520px;}
+.cell-input input.autosize{width:auto;min-width:90px;max-width:340px;}
+
+.section-title{font-weight:700;font-size:15px;margin:0 0 10px;color:var(--ink);}
+small.hint{color:var(--muted);font-size:12.5px;}
+.tag-calc{color:var(--muted);font-size:12px;font-style:italic;margin-left:4px;}
+.row-meta{padding:3px 10px 0;}
+.cellref{display:inline-block;color:var(--muted);font-weight:600;font-size:9.5px;font-family:ui-monospace,monospace;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:0px 4px;margin-right:5px;vertical-align:1px;}
+
+table.compare-table{width:100%;border-collapse:collapse;table-layout:auto;}
+table.compare-table td, table.compare-table th{border:1px solid var(--line);}
+.compare-head-row th{background:var(--surface-alt);font-weight:700;font-size:13px;color:var(--ink);text-align:center;padding:7px 0;}
+
+#doneNote{display:none;background:#f1f8f1;border:1px solid #bcdcc0;border-radius:9px;padding:14px 18px;margin-top:14px;font-size:14.5px;color:#2d5a32;line-height:1.8;}
+
+@media (max-width:640px){
+  body{padding:14px 12px 50px;font-size:14px;}
+  h1{font-size:19px;}
+  .toolbar{flex-direction:column;}
+  .toolbar button{width:100%;text-align:center;padding:11px;}
+  .panel{padding:16px 14px;}
+  legend{font-size:14px;}
+  table.cell-table, table.cell-table tbody{display:block;width:100% !important;}
+  table.cell-table tr{display:block;width:100%;margin-bottom:10px;border:1px solid var(--line);border-radius:7px;overflow:hidden;}
+  table.cell-table td{display:block;width:100% !important;border:none;}
+  table.cell-table td.cell-label{border-bottom:1px solid var(--line);}
+  table.cell-table td.cell-label .label-text{max-width:100%;}
+  .cell-input input,.cell-input select,.cell-input textarea{width:100% !important;max-width:100% !important;}
+  .input-scroll{max-width:100%;}
+  .row-meta{padding:6px 10px;}
+  table.compare-table, table.compare-table tbody{display:block;}
+  table.compare-table tr{display:block;width:100%;margin-bottom:10px;}
+  table.compare-table td, table.compare-table th{display:block;width:100% !important;border:none;border-bottom:1px solid var(--line);}
+  .compare-head-row{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>變更訂單資料填寫</h1>
+<div class="sub">請填寫以下欄位，完成後按「儲存填寫內容」下載檔案，再回傳給承辦人計算費用。</div>
+
+<div class="intro">
+  <b>填寫流程：</b>
+  <ol>
+    <li>依序填寫下方各區塊（灰色小標籤是內部對照用，可忽略）</li>
+    <li>最後在「變更件付款方式」選一個情境(A~F)</li>
+    <li>填完按 <b>📤 送出給承辦人</b></li>
+    <li>承辦人計算費用後，會再提供文字稿給您</li>
+  </ol>
+  <b>※ 後續的費用、金額與文字稿由承辦人處理，本表單只需填寫上述基本資料。</b>
+</div>
+
+<div class="toolbar">
+  <button id="submitBtn" class="primary">📤 送出給承辦人</button>
+  <button id="saveBtn">💾 另存備份檔（選用）</button>
+  <button id="loadBtnTrigger">📂 讀取先前存的內容（繼續填寫）</button>
+  <input type="file" id="loadInput" accept="application/json">
+</div>
+
+<div id="scenarioBanner">請先選擇「變更件付款方式」</div>
+
+<div class="layout">
+  <div class="panel form-panel">
+    <div id="formArea"></div>
+    <button id="submitBtn2" class="primary" style="margin-top:8px;padding:12px 28px;border:none;border-radius:8px;font-size:15px;cursor:pointer;font-weight:600;">📤 送出給承辦人</button>
+    <div id="doneNote">
+      ✅ <b>已成功送出！</b><br>
+      您填寫的資料已送達承辦人。承辦人會計算費用後，再把文字稿提供給您。
+    </div>
+    <div id="errNote" style="display:none;background:#fbecea;border:1px solid #e0b4ad;border-radius:9px;padding:14px 18px;margin-top:14px;font-size:14.5px;color:#8a2e22;line-height:1.8;">
+      ⚠️ <b>送出失敗。</b><br>
+      請檢查網路後再試一次；若持續失敗，可改按「另存備份檔」下載 .json 檔回傳給承辦人。
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+// ===================================================================
+//  ★★★ 承辦人設定：請把下面引號裡換成你的 Apps Script Web App 網址 ★★★
+//  （部署 Apps Script 為網頁應用程式後會拿到，長得像
+//    https://script.google.com/macros/s/AKfy....../exec ）
+var WEB_APP_URL = "https://script.google.com/macros/s/AKfycby-rLuS9pUEkV69xM_2O4g9UB-YeavUg7Ed-HO97rk5aykRxDkmLwUhl5_StpcEg6V3/exec";
+// ⚠️ 這裡要貼「Apps Script 部署後」的網址，長得像：
+//    https://script.google.com/macros/s/AKfy....../exec
+//    ★不是★ 試算表網址(docs.google.com/spreadsheets/...)！貼錯會送不出去。
+// ===================================================================
+
+// =========================================================
+// 申請人填寫版：本檔「不包含」任何手續費／費用計算邏輯。
+// 僅負責收集申請人填寫的基本資料，並可匯出 / 匯入 JSON。
+// 費用計算與文字稿由承辦人於完整版工具中處理。
+// =========================================================
+
+// 少數「欄位標籤」需要依付款方式切換顯示文字，這些與費用計算無關，
+// 純粹是讓申請人看到正確的欄位名稱，故保留這幾個輕量判斷。
+function labelB16(b14){
+  if (b14 === "D.原單一次付清，差額部分辦理分期(付清改分期)") return "變更商品分期總額";
+  if (b14 === "F.原單分期不變，差額部分辦理分期(另增新的分期)") return "變更商品分期總額";
+  if (b14 === "D-2.退原單送變更單請款(付清改分期)") return " ";
+  return "原資融分期      $";
+}
+function labelE16(b14){
+  if (b14 === "D.原單一次付清，差額部分辦理分期(付清改分期)") return "-原單商品總額 ";
+  if (b14 === "F.原單分期不變，差額部分辦理分期(另增新的分期)") return "-原單分期總額 ";
+  if (b14 === "D-2.退原單送變更單請款(付清改分期)") return " ";
+  return "X";
+}
+function labelG16(b14){
+  if (b14 === "D.原單一次付清，差額部分辦理分期(付清改分期)") return "=> 總共要分";
+  if (b14 === "F.原單分期不變，差額部分辦理分期(另增新的分期)") return "=> 總共要分";
+  if (b14 === "D-2.退原單送變更單請款(付清改分期)") return "原單已付";
+  return "期+已收頭款";
+}
+function labelB17(b14){
+  if (b14 === "D.原單一次付清，差額部分辦理分期(付清改分期)") return "";
+  if (b14 === "F.原單分期不變，差額部分辦理分期(另增新的分期)") return "";
+  return "變更資融分期  $";
+}
+function labelG17(b14){
+  if (b14 === "D.原單一次付清，差額部分辦理分期(付清改分期)") return " ";
+  if (b14 === "F.原單分期不變，差額部分辦理分期(另增新的分期)") return "";
+  return "期(資融期數)";
+}
+function labelB22(b14){
+  return "變更後商品金額";
+}
+var DYN_LABEL_FN = {B16:labelB16, E16:labelE16, G16:labelG16, B17:labelB17, G17:labelG17, B22:labelB22};
+
+// ---------- 下拉選單選項 ----------
+var OPT_PAYMENT_METHOD = [
+  "",
+  "A.原單分期取消，改為一次付清(分期改一次付清)",
+  "B.原單分期異動，改為新的分期(更改分期期數/款)",
+  "C.原單一次付清，差額部分一次付清/退款(更改付清金額)",
+  "D.原單一次付清，差額部分辦理分期(付清改分期)",
+  "D-2.退原單送變更單請款(付清改分期)",
+  "E.原單分期不變，差額部分一次付清(更改頭款金額)",
+  "F.原單分期不變，差額部分辦理分期(另增新的分期)"
+];
+var SCENARIO_DESC = {
+  "A.原單分期取消，改為一次付清(分期改一次付清)": "原本是分期付款，改成一次付清。請填「付清/差額相關欄位」區塊。",
+  "B.原單分期異動，改為新的分期(更改分期期數/款)": "原本是分期，更改成新的分期期數/金額。請填「分期相關欄位」區塊。",
+  "C.原單一次付清，差額部分一次付清/退款(更改付清金額)": "原本一次付清，更改付清金額(差額一次付清或退款)。請填「付清/差額相關欄位」區塊。",
+  "D.原單一次付清，差額部分辦理分期(付清改分期)": "原本一次付清，差額改辦分期。請填「分期相關欄位」區塊。",
+  "D-2.退原單送變更單請款(付清改分期)": "取消原單付款，改送變更件請款。請填「分期相關欄位」區塊。",
+  "E.原單分期不變，差額部分一次付清(更改頭款金額)": "原分期不變，差額部分一次付清(更改頭款)。請填「付清/差額相關欄位」區塊。",
+  "F.原單分期不變，差額部分辦理分期(另增新的分期)": "原分期不變，差額另外辦新的分期。請填「分期相關欄位」區塊。"
+};
+var SCENARIO_GROUP = {
+  "A.原單分期取消，改為一次付清(分期改一次付清)": "payoff",
+  "B.原單分期異動，改為新的分期(更改分期期數/款)": "install",
+  "C.原單一次付清，差額部分一次付清/退款(更改付清金額)": "payoff",
+  "D.原單一次付清，差額部分辦理分期(付清改分期)": "install",
+  "D-2.退原單送變更單請款(付清改分期)": "install",
+  "E.原單分期不變，差額部分一次付清(更改頭款金額)": "payoff",
+  "F.原單分期不變，差額部分辦理分期(另增新的分期)": "install"
+};
+var OPT_PAYTYPE_J7 = ["","(現金)","(刷卡)","(現金+刷卡)"];
+var OPT_FINANCE_ORG = ["","仲信","裕富","和潤","無"];
+var OPT_USAGE = ["","未使用","，有使用"];
+var OPT_DELIVERY = ["無需收貨","PM5:00 前貨需完整收回(含折損寄還or確認由誰負擔回報)"];
+
+function getScenarioCode(b14){
+  if (!b14) return '';
+  if (b14.indexOf('D-2.') === 0) return 'D-2';
+  if (b14.indexOf('A.') === 0) return 'A';
+  if (b14.indexOf('B.') === 0) return 'B';
+  if (b14.indexOf('C.') === 0) return 'C';
+  if (b14.indexOf('D.') === 0) return 'D';
+  if (b14.indexOf('E.') === 0) return 'E';
+  if (b14.indexOf('F.') === 0) return 'F';
+  return '';
+}
+
+// ---------- 欄位定義（只保留申請人需填的基本資料；手續費/結算/折讓相關欄位已全部移除） ----------
+var FIELDS = [
+ {section:"詢問單位", items:[
+  {ref:"UNIT", label:"詢問單位", type:"select", options:["","201-台北弘瞻","202-台北星睿","203-台北頡領","205-新北鴻泰","206-新北祥育","303-桃園超揚","313-桃園學睿","401-台中一中","406-台中仲信","604-台南弘燿","706-高雄睿智","其他(總公司選填)"]},
+ ]},
+ {section:"日期資訊", items:[
+  {ref:"B1", label:"計算日期(單位詢問日)", type:"date"},
+  {ref:"E1", label:"原出貨日", type:"date"},
+  {ref:"G1", label:"自送日期(若無則留空)", type:"date"},
+  {ref:"B2", label:"變更件預計簽單日", type:"date"},
+ ]},
+ {section:"訂單基本資料", items:[
+  {ref:"B3", label:"流水號", type:"text"},
+  {ref:"B5", label:"訂單編號", type:"text"},
+  {ref:"I5", label:"客戶", type:"text"},
+ ]},
+ {section:"原單　與　變更後　資訊對照", layout:"compare",
+  pairs:[["ORIG_PAYTYPE","NEW_PAYTYPE"],["B6","B10"],["B7","B11"],["B8","B12"],["I6","I10"],["I7","I11"],["J7",null],["I8","I12"]],
+  items:[
+  {ref:"ORIG_PAYTYPE", label:"原單付款方式", type:"select", options:["分期","一次付清"], default:"分期"},
+  {ref:"NEW_PAYTYPE", label:"變更後付款方式", type:"select", options:["分期","一次付清"], default:"分期"},
+  {ref:"B6", label:"原產品名稱", type:"text", autosize:true},
+  {ref:"B10", label:"變更產品名稱", type:"text", autosize:true},
+  {ref:"B7", label:"原使用價目表版本", type:"text"},
+  {ref:"B11", label:"使用價目表版本(變更後)", type:"text"},
+  {ref:"B8", label:"原PV值", type:"text"},
+  {ref:"B12", label:"變更後PV值", type:"text"},
+  {ref:"I6", label:"原單總金額", type:"number"},
+  {ref:"I10", label:"變更後總金額", type:"number"},
+  {ref:"I7", label:"原頭款(金額)", type:"number", hideWhen:{ref:"ORIG_PAYTYPE", equals:"一次付清"}},
+  {ref:"I11", label:"頭款(變更後金額)", type:"number", hideWhen:{ref:"NEW_PAYTYPE", equals:"一次付清"}},
+  {ref:"J7", label:"原頭款付款方式", type:"select", options:OPT_PAYTYPE_J7},
+  {ref:"I8", label:"原每期(金額)", type:"number", hideWhen:{ref:"ORIG_PAYTYPE", equals:"一次付清"}},
+  {ref:"I12", label:"變更每期(金額)", type:"number", hideWhen:{ref:"NEW_PAYTYPE", equals:"一次付清"}},
+ ]},
+ {section:"變更件付款方式", items:[
+  {ref:"B14", label:"變更件付款方式(A~F擇一)", type:"select", options:OPT_PAYMENT_METHOD},
+ ]},
+];
+
+var TAB_ORDER = [];
+
+function renderFieldsHtml(items){
+  var rows = '';
+  items.forEach(function(f){
+    var inputId = f.idOverride || f.ref;
+    if (f.type === 'note'){
+      rows += '<tr><td colspan="2" class="note-cell" data-ref="'+inputId+'">'+f.text+'</td></tr>';
+      return;
+    }
+    rows += '<tr>'+renderSingleFieldCells(f)+'</tr>';
+  });
+  return rows;
+}
+
+function renderSingleFieldCells(f){
+  var inputId = f.idOverride || f.ref;
+  var staticLabel = f.label || f.ref;
+  var hlClass = (f.autosize ? ' autosize' : '');
+  var titleAttr = ' title="'+staticLabel.replace(/"/g,'&quot;')+'"';
+  var labelHtml = f.dynLabelFrom
+    ? '<span class="cellref">'+f.ref+'</span><span class="label-text" id="lbl_'+inputId+'">依付款方式自動顯示</span>'
+    : '<span class="cellref">'+f.ref+'</span><span class="label-text">'+staticLabel+'</span>';
+  var metaHtml = '';
+  if (f.note){ metaHtml = '<div class="row-meta"><small class="hint">'+f.note+'</small></div>'; }
+  var inputHtml;
+  var needsScrollWrap = true;
+  if (f.type === 'select'){
+    inputHtml = '<select id="f_'+inputId+'" class="'+hlClass+'">';
+    (f.options||[]).forEach(function(o){
+      inputHtml += '<option value="'+o+'"'+(o===f.default?' selected':'')+'>'+(o===''?'(空白)':o)+'</option>';
+    });
+    inputHtml += '</select>';
+    TAB_ORDER.push('f_'+inputId); needsScrollWrap = false;
+  } else if (f.type === 'textarea'){
+    inputHtml = '<textarea id="f_'+inputId+'" class="'+hlClass+'"></textarea>';
+    TAB_ORDER.push('f_'+inputId); needsScrollWrap = false;
+  } else if (f.type === 'text' && f.autosize){
+    inputHtml = '<textarea id="f_'+inputId+'" rows="1" class="wraptext'+hlClass+'"></textarea>';
+    TAB_ORDER.push('f_'+inputId); needsScrollWrap = false;
+  } else if (f.type === 'date'){
+    inputHtml = '<input id="f_'+inputId+'" type="date" min="1900-01-01" max="2099-12-31">';
+    TAB_ORDER.push('f_'+inputId); needsScrollWrap = false;
+  } else {
+    inputHtml = '<input id="f_'+inputId+'" type="'+f.type+'" class="'+hlClass+'">';
+    TAB_ORDER.push('f_'+inputId);
+  }
+  if (needsScrollWrap){ inputHtml = '<div class="input-scroll">'+inputHtml+'</div>'; }
+  return '<td class="cell-label" data-ref="'+inputId+'"'+titleAttr+'>'+labelHtml+'</td>'+
+         '<td class="cell-input" data-ref="'+inputId+'">'+inputHtml+metaHtml+'</td>';
+}
+
+function renderCompareHtml(sec){
+  var byRef = {};
+  sec.items.forEach(function(f){ byRef[f.ref] = f; });
+  var html = '<table class="cell-table compare-table"><tbody>';
+  html += '<tr class="compare-head-row"><th colspan="2">原訂單資訊</th><th colspan="2">變更後資訊</th></tr>';
+  sec.pairs.forEach(function(pair){
+    var leftHtml = pair[0] && byRef[pair[0]] ? renderSingleFieldCells(byRef[pair[0]]) : '<td></td><td></td>';
+    var rightHtml = pair[1] && byRef[pair[1]] ? renderSingleFieldCells(byRef[pair[1]]) : '<td></td><td></td>';
+    html += '<tr>'+leftHtml+rightHtml+'</tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+function buildForm(){
+  var area = document.getElementById('formArea');
+  var html = '';
+  TAB_ORDER = [];
+  FIELDS.forEach(function(sec, secIdx){
+    if (sec.foldable){
+      html += '<details class="foldable" id="sec_'+secIdx+'"><summary>'+sec.section+'</summary><div class="inner"><table class="cell-table"><tbody>';
+      html += renderFieldsHtml(sec.items);
+      html += '</tbody></table></div></details>';
+    } else if (sec.layout === 'compare'){
+      html += '<fieldset id="sec_'+secIdx+'" data-group="'+(sec.group||'')+'"><legend>'+sec.section+'</legend>';
+      html += renderCompareHtml(sec);
+      html += '</fieldset>';
+    } else {
+      html += '<fieldset id="sec_'+secIdx+'" data-group="'+(sec.group||'')+'"><legend>'+sec.section+'</legend><table class="cell-table"><tbody>';
+      html += renderFieldsHtml(sec.items);
+      html += '</tbody></table></fieldset>';
+    }
+  });
+  area.innerHTML = html;
+}
+buildForm();
+
+function collectB14(){
+  var el = document.getElementById('f_B14');
+  return el ? el.value : '';
+}
+function collectVal(ref){
+  var el = document.getElementById('f_'+ref);
+  return el ? el.value : '';
+}
+
+function setFieldVisible(ref, visible){
+  document.querySelectorAll('[data-ref="'+ref+'"]').forEach(function(td){
+    td.style.display = visible ? '' : 'none';
+  });
+}
+
+function updateScenarioUI(){
+  var b14 = collectB14();
+  var banner = document.getElementById('scenarioBanner');
+  if (!b14){
+    banner.textContent = '請選擇「變更件付款方式」（A~F 擇一）';
+  } else {
+    banner.textContent = '目前選擇：' + b14 + '　→　已選好付款方式，確認上方欄位都填妥後，按「儲存填寫內容」回傳承辦人即可。';
+  }
+}
+
+function refreshVisibility(){
+  updateScenarioUI();
+  var b14 = collectB14();
+  var curCode = getScenarioCode(b14);
+  var curGroup = SCENARIO_GROUP[b14] || '';
+
+  FIELDS.forEach(function(sec){
+    sec.items.forEach(function(f){
+      var inputId = f.idOverride || f.ref;
+      // onlyFor / onlyForGroup
+      if (f.onlyFor || f.onlyForGroup){
+        var shouldShow = true;
+        if (f.onlyFor){ shouldShow = f.onlyFor.indexOf(curCode) !== -1; }
+        if (f.onlyForGroup){ shouldShow = shouldShow && (curGroup === f.onlyForGroup); }
+        setFieldVisible(inputId, shouldShow);
+      }
+      // hideWhen
+      if (f.hideWhen){
+        var otherVal = collectVal(f.hideWhen.ref);
+        var shouldHide = false;
+        if (f.hideWhen.hasOwnProperty('equals')){ shouldHide = (otherVal === f.hideWhen.equals); }
+        else if (f.hideWhen.hasOwnProperty('notEquals')){ shouldHide = (otherVal !== f.hideWhen.notEquals); }
+        setFieldVisible(inputId, !shouldHide);
+      }
+      // 動態標籤
+      if (f.dynLabelFrom && DYN_LABEL_FN[f.dynLabelFrom]){
+        var text = DYN_LABEL_FN[f.dynLabelFrom](b14);
+        var trimmed = String(text).trim();
+        var lblEl = document.getElementById('lbl_'+inputId);
+        if (lblEl) lblEl.textContent = (trimmed === "") ? "" : text;
+        if (!f.onlyFor){ setFieldVisible(inputId, trimmed !== ""); }
+      }
+    });
+  });
+}
+
+// ---------- autosize ----------
+function autosizeInput(el){
+  if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'SELECT')) return;
+  if (el.type === 'date') return;
+  var text = el.tagName === 'SELECT'
+    ? (el.options[el.selectedIndex] ? el.options[el.selectedIndex].text : '')
+    : (el.value || '');
+  var len = Math.max(text.length, 4);
+  el.style.width = Math.min(460, Math.max(50, len*9+30)) + 'px';
+}
+function autogrowWrapText(el){
+  if (!el || !el.classList || !el.classList.contains('wraptext')) return;
+  el.style.height = 'auto';
+  el.style.height = Math.max(34, el.scrollHeight) + 'px';
+}
+function autosizeAll(){
+  document.querySelectorAll('.cell-input input, .cell-input select').forEach(autosizeInput);
+  document.querySelectorAll('.cell-input textarea.wraptext').forEach(autogrowWrapText);
+}
+
+var formArea = document.getElementById('formArea');
+formArea.addEventListener('input', function(e){
+  if (e.target){ autosizeInput(e.target); autogrowWrapText(e.target); }
+  refreshVisibility();
+});
+formArea.addEventListener('change', function(e){
+  autosizeInput(e.target); autogrowWrapText(e.target); refreshVisibility();
+});
+formArea.addEventListener('focusout', function(e){
+  var el = e.target;
+  var isText = el && el.tagName === 'INPUT' && el.type === 'text';
+  var isArea = el && el.tagName === 'TEXTAREA';
+  if (!isText && !isArea) return;
+  var v = el.value || '';
+  var trimmed = v.replace(/^[ \t　]+|[ \t　]+$/g, '').replace(/[ \t　]{2,}/g, ' ');
+  if (trimmed !== v){ el.value = trimmed; autosizeInput(el); autogrowWrapText(el); }
+});
+
+// Enter / 上下鍵 跳格
+formArea.addEventListener('keydown', function(e){
+  var idx = TAB_ORDER.indexOf(e.target.id);
+  if (idx === -1) return;
+  var isSelect = e.target.tagName === 'SELECT';
+  if (e.key === 'Enter'){
+    e.preventDefault();
+    var next = document.getElementById(TAB_ORDER[idx+1]);
+    if (next) next.focus();
+    return;
+  }
+  if (!isSelect){
+    if (e.key === 'ArrowDown'){ e.preventDefault(); var n=document.getElementById(TAB_ORDER[idx+1]); if(n)n.focus(); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); var p=document.getElementById(TAB_ORDER[idx-1]); if(p)p.focus(); }
+  }
+});
+
+// ---------- 儲存 / 讀取 JSON ----------
+function getAllFieldIds(){
+  var ids = [];
+  FIELDS.forEach(function(sec){
+    sec.items.forEach(function(f){
+      if (f.type === 'note') return;
+      ids.push(f.idOverride || f.ref);
+    });
+  });
+  return ids;
+}
+
+function gatherData(){
+  var data = {};
+  getAllFieldIds().forEach(function(id){
+    var el = document.getElementById('f_'+id);
+    if (el) data[id] = el.value;
+  });
+  return data;
+}
+
+// 下載 JSON 備份（選用）
+function doSave(){
+  var data = gatherData();
+  var blob = new Blob([JSON.stringify(data, null, 1)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var orderNo = (document.getElementById('f_B5')||{}).value || '未命名';
+  a.href = url;
+  a.download = '變更訂單資料_' + orderNo + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+document.getElementById('saveBtn').addEventListener('click', doSave);
+
+// 送出到 Google 試算表（透過 Apps Script Web App）
+function doSubmit(){
+  if (!WEB_APP_URL || WEB_APP_URL.indexOf('請貼上') === 0){
+    alert('尚未設定送出網址，請承辦人於 HTML 內填入 Web App 網址。');
+    return;
+  }
+  var data = gatherData();
+  if (!data['B14']){
+    alert('請先選擇「變更件付款方式」再送出。');
+    return;
+  }
+  document.getElementById('doneNote').style.display = 'none';
+  document.getElementById('errNote').style.display = 'none';
+  var btns = [document.getElementById('submitBtn'), document.getElementById('submitBtn2')];
+  btns.forEach(function(b){ if(b){ b.disabled = true; b.textContent = '送出中…'; } });
+
+  // 用 text/plain 避免觸發 CORS 預檢，Apps Script 端用 e.postData.contents 解析
+  fetch(WEB_APP_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(data)
+  }).then(function(){
+    // no-cors 下無法讀回應內容，視為已送出
+    document.getElementById('doneNote').style.display = 'block';
+    document.getElementById('doneNote').scrollIntoView({behavior:'smooth', block:'center'});
+  }).catch(function(){
+    document.getElementById('errNote').style.display = 'block';
+    document.getElementById('errNote').scrollIntoView({behavior:'smooth', block:'center'});
+  }).then(function(){
+    btns.forEach(function(b){ if(b){ b.disabled = false; b.textContent = '📤 送出給承辦人'; } });
+  });
+}
+document.getElementById('submitBtn').addEventListener('click', doSubmit);
+document.getElementById('submitBtn2').addEventListener('click', doSubmit);
+
+document.getElementById('loadBtnTrigger').addEventListener('click', function(){
+  document.getElementById('loadInput').click();
+});
+document.getElementById('loadInput').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(evt){
+    try{
+      var data = JSON.parse(evt.target.result);
+      Object.keys(data).forEach(function(id){
+        var el = document.getElementById('f_'+id);
+        if (el){ el.value = data[id]; autosizeInput(el); autogrowWrapText(el); }
+      });
+      refreshVisibility(); autosizeAll();
+      alert('已讀取先前儲存的內容！');
+    }catch(err){
+      alert('讀取失敗，檔案格式不正確：'+err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+refreshVisibility();
+autosizeAll();
+</script>
+</body>
+</html>
