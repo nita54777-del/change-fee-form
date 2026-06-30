@@ -273,11 +273,11 @@ var FIELDS = [
   {ref:"B12", label:"變更後PV值", type:"text"},
   {ref:"I6", label:"原單總金額", type:"number"},
   {ref:"I10", label:"變更後總金額", type:"number"},
-  {ref:"I7", label:"原頭款(金額)", type:"number", hideWhen:{ref:"ORIG_PAYTYPE", equals:"一次付清"}},
-  {ref:"I11", label:"頭款(變更後金額)", type:"number", hideWhen:{ref:"NEW_PAYTYPE", equals:"一次付清"}},
+  {ref:"I7", label:"原頭款(金額)", type:"number", hideWhen:{ref:"ORIG_PAYTYPE", equals:"一次付清"}, keepSpace:true},
+  {ref:"I11", label:"頭款(變更後金額)", type:"number", hideWhen:{ref:"NEW_PAYTYPE", equals:"一次付清"}, keepSpace:true},
   {ref:"J7", label:"原頭款付款方式", type:"select", options:OPT_PAYTYPE_J7},
-  {ref:"I8", label:"原每期(金額)", type:"number", hideWhen:{ref:"ORIG_PAYTYPE", equals:"一次付清"}},
-  {ref:"I12", label:"變更每期(金額)", type:"number", hideWhen:{ref:"NEW_PAYTYPE", equals:"一次付清"}},
+  {ref:"I8", label:"原每期(金額)", type:"number", hideWhen:{ref:"ORIG_PAYTYPE", equals:"一次付清"}, keepSpace:true},
+  {ref:"I12", label:"變更每期(金額)", type:"number", hideWhen:{ref:"NEW_PAYTYPE", equals:"一次付清"}, keepSpace:true},
  ]},
  {section:"變更件付款方式", items:[
   {ref:"B14", label:"變更件付款方式(A~F擇一)", type:"select", options:OPT_PAYMENT_METHOD},
@@ -385,6 +385,14 @@ function collectVal(ref){
 function setFieldVisible(ref, visible){
   document.querySelectorAll('[data-ref="'+ref+'"]').forEach(function(td){
     td.style.display = visible ? '' : 'none';
+    td.style.visibility = '';
+  });
+}
+// keepSpace 用：隱藏時保留版面位置(看不見但留空間)，避免對照欄位錯位
+function setFieldVisibleKeepSpace(ref, visible){
+  document.querySelectorAll('[data-ref="'+ref+'"]').forEach(function(td){
+    td.style.display = '';
+    td.style.visibility = visible ? 'visible' : 'hidden';
   });
 }
 
@@ -420,7 +428,8 @@ function refreshVisibility(){
         var shouldHide = false;
         if (f.hideWhen.hasOwnProperty('equals')){ shouldHide = (otherVal === f.hideWhen.equals); }
         else if (f.hideWhen.hasOwnProperty('notEquals')){ shouldHide = (otherVal !== f.hideWhen.notEquals); }
-        setFieldVisible(inputId, !shouldHide);
+        if (f.keepSpace) setFieldVisibleKeepSpace(inputId, !shouldHide);
+        else setFieldVisible(inputId, !shouldHide);
       }
       // 動態標籤
       if (f.dynLabelFrom && DYN_LABEL_FN[f.dynLabelFrom]){
